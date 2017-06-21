@@ -1,0 +1,17 @@
+{
+    "name": "shion/laravel-soft-delete-timestamp",
+    "authors": [
+        {
+            "name": "Shion",
+            "email": "shion.chow@gmail.com"
+        }
+    ],
+    "require": {
+        "illuminate/database": "~5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shion\\SoftDeletes\\": "src/"
+        }
+    }
+}
