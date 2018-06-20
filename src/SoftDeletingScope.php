@@ -24,7 +24,7 @@ class SoftDeletingScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->where($model->getQualifiedDeletedAtColumn(), new \Illuminate\Database\Query\Expression('0'));
+        $builder->where($model->getQualifiedDeletedAtColumn(), 0);
     }
 
     /**
@@ -56,7 +56,7 @@ class SoftDeletingScope implements Scope
      */
     protected function getDeletedAtColumn(Builder $builder)
     {
-        if (count($builder->getQuery()->joins) > 0) {
+        if (count((array) $builder->getQuery()->joins) > 0) {
             return $builder->getModel()->getQualifiedDeletedAtColumn();
         }
 
@@ -86,7 +86,11 @@ class SoftDeletingScope implements Scope
      */
     protected function addWithTrashed(Builder $builder)
     {
-        $builder->macro('withTrashed', function (Builder $builder) {
+        $builder->macro('withTrashed', function (Builder $builder, $withTrashed = true) {
+            if (! $withTrashed) {
+                return $builder->withoutTrashed();
+            }
+
             return $builder->withoutGlobalScope($this);
         });
     }
@@ -102,10 +106,7 @@ class SoftDeletingScope implements Scope
         $builder->macro('withoutTrashed', function (Builder $builder) {
             $model = $builder->getModel();
 
-            $builder->withoutGlobalScope($this)->where(
-                $model->getQualifiedDeletedAtColumn(),
-                new \Illuminate\Database\Query\Expression('0')
-            );
+            $builder->withoutGlobalScope($this)->where($model->getQualifiedDeletedAtColumn(), 0);
 
             return $builder;
         });
@@ -122,11 +123,7 @@ class SoftDeletingScope implements Scope
         $builder->macro('onlyTrashed', function (Builder $builder) {
             $model = $builder->getModel();
 
-            $builder->withoutGlobalScope($this)->where(
-                $model->getQualifiedDeletedAtColumn(),
-                '>',
-                new \Illuminate\Database\Query\Expression('0')
-            );
+            $builder->withoutGlobalScope($this)->where($model->getQualifiedDeletedAtColumn(), '>', 0);
 
             return $builder;
         });
